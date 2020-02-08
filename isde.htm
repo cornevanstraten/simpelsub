@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)https://www.simpelsubsidie.nl/isde/index.php -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="Uw warmtepomp- en zonneboilersubsidie snel in beeld.">
+
+
+<title>ISDEtool</title>
+
+<!-- Custom fonts for this theme -->
+<link href="https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,600|Montserrat:200,300,400" rel="stylesheet">
+
+<!-- <link href="./Simpelsubsidie_files/all.min.css" rel="stylesheet" type="text/css">
+<link href="./Simpelsubsidie_files/css" rel="stylesheet" type="text/css">
+<link href="./Simpelsubsidie_files/css(1)" rel="stylesheet" type="text/css"> -->
+
+<!-- Theme CSS -->
+<!-- <link href="./Simpelsubsidie_files/freelancer.css" rel="stylesheet"> -->
+<link rel="icon" type="image/png" href="https://www.simpelsubsidie.nl/isde/img/favicon.png">  
+
+<!-- New -->
+
+<link rel="stylesheet" href="assets/css/bootstrap/bootstrap.css">
+<link rel="stylesheet" href="assets/fonts/ionicons/css/ionicons.min.css">
+<link rel="stylesheet" href="assets/fonts/law-icons/font/flaticon.css">
+
+
+<link rel="stylesheet" href="assets/fonts/fontawesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="assets/css/slick.css">
+<link rel="stylesheet" href="assets/css/slick-theme.css">
+
+<link rel="stylesheet" href="assets/css/helpers.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/landing-2.css">
+
+
+  <script>
+  function openFilter(SoortInstallatie) 
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          document.getElementById('knop_Warmtepompen').style.backgroundColor = "var(--primary-gray)";
+          document.getElementById('knop_Zonneboilers').style.backgroundColor = "var(--primary-gray)";
+          document.getElementById('knop_Pelletkachels').style.backgroundColor = "var(--primary-gray)";
+          document.getElementById('knop_Biomassaketels').style.backgroundColor = "var(--primary-gray)";
+          
+          document.getElementById('knop_' + SoortInstallatie).style.backgroundColor = "var(--primary)";
+          
+          document.getElementById('filterinstallaties').innerHTML = this.responseText;
+          document.getElementById('gevondeninstallaties').innerHTML = '';
+          
+          if(window.innerWidth >= 700)
+          {
+            if(SoortInstallatie == 'Warmtepompen'){
+              var imgWarmtepomp = document.getElementById('imgaanvragenwarmtepomp');
+              
+              if(!imgWarmtepomp.classList.contains('selected')){
+                var bgimages = document.getElementsByClassName('bgimg');
+                for(var i = 0; i < bgimages.length; i++){
+                  if(bgimages[i].classList.contains('selected')){
+                    bgimages[i].classList.remove('selected');
+                  }
+                }
+                
+                imgWarmtepomp.classList.add('selected');
+              }
+            }
+            else{
+              var imgZonneboiler = document.getElementById('imgaanvragenzonneboiler');
+              
+              if(!imgZonneboiler.classList.contains('selected')){
+                var bgimages = document.getElementsByClassName('bgimg');
+                for(var i = 0; i < bgimages.length; i++){
+                  if(bgimages[i].classList.contains('selected')){
+                    bgimages[i].classList.remove('selected');
+                  }
+                }
+                
+                imgZonneboiler.classList.add('selected');
+              }
+            }
+          }
+        }
+    };
+
+    xmlhttp.open('GET','ajax/ajax_filter.php?SoortInstallatie=' + btoa(SoortInstallatie), true);
+    xmlhttp.send();
+  }
+  function vindInstallaties(SoortInstallatie, Type, Merk, Offset) 
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          if(Offset == 0)
+          {
+            document.getElementById('gevondeninstallaties').innerHTML = this.responseText;
+          }
+          else
+          {
+            document.getElementById('offsetbutton').parentNode.removeChild(document.getElementById('offsetbutton'));
+            document.getElementById('gevondeninstallaties').innerHTML += this.responseText;
+          }
+        }
+    };
+    
+    xmlhttp.open('GET','ajax/ajax_installaties.php?SoortInstallatie=' + btoa(SoortInstallatie) + '&Type=' + btoa(Type) + '&Merk=' + btoa(Merk) + '&Offset=' + btoa(Offset), true);
+    xmlhttp.send();
+  }
+  function voegGeselecteerdeInstallatieToe(type, merk, aantal) 
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          if(this.responseText.startsWith('ok'))
+          {
+            refreshGeselecteerdeInstallaties();
+
+            document.getElementById('selecteerInstallatie').style.display = 'none';
+            document.getElementById('filter_merk').value = '';
+            document.getElementById('filter_type').value = '';
+            document.getElementById('gevondeninstallaties').innerHTML = '';
+          }
+          else
+          {
+            alert(this.responseText);
+          }
+        }
+    };
+
+    xmlhttp.open('GET','ajax/ajax_voegGeselecteerdeInstallatieToe.php?Type=' + btoa(type) + '&Merk=' + btoa(merk) + '&Aantal=' + btoa(aantal), true);
+    xmlhttp.send();
+  }
+  function updateGeselecteerdeInstallatie(id, aantal)
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          refreshGeselecteerdeInstallaties();
+        }
+    };
+
+    xmlhttp.open('GET','ajax/ajax_wijzigGeselecteerdeInstallatie.php?Id=' + btoa(id) + '&Aantal=' + btoa(aantal), true);
+    xmlhttp.send();
+  }
+  function refreshGeselecteerdeInstallaties() 
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          if(this.responseText == 'geen geselecteerde installaties')
+          {
+            document.getElementById('geselecteerdeinstallaties').innerHTML = '';
+            document.getElementById('installatieSoortenHeader').innerHTML = 'selecteer';
+            document.getElementById('selecteerInstallatie').style.display='block';
+          }
+          else
+          {
+            document.getElementById('geselecteerdeinstallaties').innerHTML = this.responseText;
+            document.getElementById('installatieSoortenHeader').innerHTML = '<hr>';
+          }
+        }
+    };
+
+    xmlhttp.open('GET','ajax/ajax_geselecteerdeInstallaties.php', true);
+    xmlhttp.send();
+  }
+  function refreshSelecteerInstallatieModal(type, merk) 
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          document.getElementById('selecteerinstallatiemodalcontent').innerHTML = this.responseText;
+        }
+    };
+
+    xmlhttp.open('GET','ajax/ajax_selecteerInstallatieModal.php?Type=' + btoa(type) + '&Merk=' + btoa(merk), true);
+    xmlhttp.send();
+  }
+  function editInstallatieModal(id)
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          document.getElementById('selecteerinstallatiemodalcontent').innerHTML = this.responseText;
+        }
+    };
+
+    xmlhttp.open('GET','ajax/ajax_selecteerInstallatieModal.php?Id=' + btoa(id), true);
+    xmlhttp.send();
+  }
+  function verwijderGeselecteerdeInstallatie(id) 
+  {
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+          refreshGeselecteerdeInstallaties();
+        }
+    };
+
+    xmlhttp.open('GET','ajax/ajax_verwijderGeselecteerdeInstallatie.php?Id=' + btoa(id), true);
+    xmlhttp.send();
+  }
+  function checkInputNumber(min, max, elementId_input, elementId_message)
+  {
+    var value = document.getElementById(elementId_input).value;
+    if(value == '')
+    {
+      document.getElementById(elementId_message).innerHTML = 'Voer hier een getal in.';
+      return false;  
+    }
+    if(value < min)
+    {
+      document.getElementById(elementId_message).innerHTML = 'Geef een hogere waarde op.';
+      return false;
+    }
+    if(value > max)
+    {
+      document.getElementById(elementId_message).innerHTML = 'Geef een lagere waarde op.';
+      return false;
+    }
+    return true;
+  }
+  </script><script data-dapp-detection="">
+(function() {
+  let alreadyInsertedMetaTag = false
+
+  function __insertDappDetected() {
+    if (!alreadyInsertedMetaTag) {
+      const meta = document.createElement('meta')
+      meta.name = 'dapp-detected'
+      document.head.appendChild(meta)
+      alreadyInsertedMetaTag = true
+    }
+  }
+
+  if (window.hasOwnProperty('web3')) {
+    // Note a closure can't be used for this var because some sites like
+    // www.wnyc.org do a second script execution via eval for some reason.
+    window.__disableDappDetectionInsertion = true
+    // Likely oldWeb3 is undefined and it has a property only because
+    // we defined it. Some sites like wnyc.org are evaling all scripts
+    // that exist again, so this is protection against multiple calls.
+    if (window.web3 === undefined) {
+      return
+    }
+    __insertDappDetected()
+  } else {
+    var oldWeb3 = window.web3
+    Object.defineProperty(window, 'web3', {
+      configurable: true,
+      set: function (val) {
+        if (!window.__disableDappDetectionInsertion)
+          __insertDappDetected()
+        oldWeb3 = val
+      },
+      get: function () {
+        if (!window.__disableDappDetectionInsertion)
+          __insertDappDetected()
+        return oldWeb3
+      }
+    })
+  }
+})()</script>
+
+</head>
+
+<body id="page-top" data-spy="scroll" data-target="#pb-navbar" data-offset="20">
+  
+  <nav class="navbar" id="pb-navbar">
+    <div class="container">
+      <a class="navbar-brand light" href="index.html"><img class="img-fluid col-md-8  justify-content-center"
+          src="assets/images/simpel-subsidie-klein.png" alt="simpelsubsidie logo" style="max-width: 200px;"></a>
+      <!-- <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#probootstrap-navbar"
+        aria-controls="probootstrap-navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="ion-navicon"></i></span>
+      </button> -->
+      <div class="collapse navbar-collapse" id="probootstrap-navbar">
+      </div>
+    </div>
+  </nav>
+
+
+
+  <section class="pb_cover_v3 overflow-hidden cover-bg-indigo cover-bg-opacity text-left pb_gradient_v1"
+    id="section-home">
+    <div class="container">
+      <div class="row align-items-center justify-content-center" style="">
+        <div class="col-md-5 justify-content-center" style="">
+          <h4 class="heading pb_font-40">Kies:</h2>
+            <div class="sub-heading">
+              <p class="mb-4">Kies uw installatie en vul het merk en type in </p>
+            </div>
+            <div class="radio-toolbar">
+              <input id="wp" type="radio" name="radioInstallatie" value="warmtepomp" checked> <label for="wp"><span class="fa fa-check"></span> Warmtepomp</label>
+              <input id="zb" type="radio" name="radioInstallatie" value="zonneboiler"> <label for="zb"><span class="fa fa-check"></span> Zonneboiler</label>
+            </div>
+
+            <!-- <button class="btn btn-secondary btn-lg btn-block pb_btn-pill">Warmtepomp</button>
+            <button class="btn btn-secondary btn-lg btn-block pb_btn-pill">Zonneboiler</button> -->
+
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-5" >
+          <div id="filterinstallaties">
+          <form action="#" class="bg-white rounded pb_form_v1">
+            <!-- <h5 class="mb-4 mt-0 text-center">subtitel</h5> -->
+            <!-- <h2 class="mb-4 mt-0 text-center">titel</h2> -->
+            <div class="form-group">
+              <label for="merk">Merk:</label>
+              <input name="merk" type="text" class="form-control py-3 reverse" placeholder="Bijvoorbeeld: Remeha">
+            </div>
+            <div class="form-group">
+              <label for="type">Type:</label>
+              <input name="type" type="text" class="form-control py-3 reverse" placeholder="Bijvoorbeeld: Cool Plus">
+            </div>
+            <div class="form-group">
+              <!-- <input type="submit" class="btn btn-secondary btn-lg btn-block pb_btn-pill  btn-shadow-orange"
+                value="verzend"> -->
+            </div>
+          </form>
+          </div>
+          <div class="row" id="gevondeninstallaties">
+          
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  
+  <style>
+    .radio-toolbar input[type="radio"] {
+      opacity: 0;
+      position: fixed;
+      width: 0;
+    }
+    .radio-toolbar label {
+    /* width: 100%; */
+    text-align: center;
+    /* display: inline-block; */
+    color: #B5D8E5;
+    background-color: #2583C0;
+    padding: 10px 20px;
+    font-family: sans-serif, Arial;
+    font-size: 1.1em;
+    /* border: 2px solid #444; */
+    border-radius: 50px;
+    }
+    .radio-toolbar input[type="radio"]:checked + label {
+    background-color:#2C3E50;
+    font-size: 1.4em;
+    color: #fff
+    }
+
+    span.fa {
+      visibility: hidden;
+    }
+
+    .radio-toolbar input[type="radio"]:checked + label span.fa {
+    visibility: visible;
+    color: #7BC950;
+    }
+
+  </style>
+
+<!-- Copyright Section -->
+  <section class="copyright py-4 text-center text-white pt-5 pb-5 footer">
+    <div class="container">
+      <small>Copyright © Procestools.nl 2020</small>
+    </div>
+  </section>
+
+		
+
+		<style media="screen">
+		.footer{
+background: #2C3E50;
+color:white;
+
+.links{
+	ul {list-style-type: none;}
+	li a{
+		/* color: white; */
+		transition: color .2s;
+		&:hover{
+			text-decoration:none;
+			color:#4180CB;
+			}
+	}
+}
+.about-company{
+	i{font-size: 25px;}
+	a{
+		color:white;
+		transition: color .2s;
+		&:hover{color:#4180CB}
+	}
+}
+.location{
+	i{font-size: 18px;}
+}
+.copyright p{border-top:1px solid rgba(255,255,255,.1);}
+}
+		</style>  
+  <div class="portfolio-modal modal fade" id="selecteerinstallatiemodal" tabindex="-1" role="dialog" aria-labelledby="portfolioModal1Label" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">
+          <i class="fas fa-times"></i>
+        </span>
+      </button>
+      <div class="modal-body text-center">
+        <div class="container" id="selecteerinstallatiemodalcontent">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="./Simpelsubsidie_files/jquery.min.js"></script>
+  <script src="./Simpelsubsidie_files/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="./Simpelsubsidie_files/jquery.easing.min.js"></script>
+
+  <!-- Contact Form JavaScript -->
+  <script src="./Simpelsubsidie_files/jqBootstrapValidation.js"></script>
+  <script src="./Simpelsubsidie_files/contact_me.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="./Simpelsubsidie_files/freelancer.min.js"></script>   
+
+
+
+</body></html>
